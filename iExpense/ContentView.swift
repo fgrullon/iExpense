@@ -7,62 +7,48 @@
 
 import SwiftUI
 
-struct SecondView: View {
-    @Environment(\.dismiss) var dismiss
-    
+struct ExpenseItem {
     let name: String
-    @State private var numbers = [Int]()
-    @State private var currentNumber = 1
+    let type: String
+    let amount: Double
+}
+
+@Observable
+class Expenses {
+    var items = [ExpenseItem]()
+}
+
+struct ContentView: View {
+    
+    @State private var expenses = Expenses()
+    
+
     var body: some View{
-        
-        Text("Second View")
-        Text("Hello, \(name)")
-        Button("Dismiss"){
-            dismiss()
-        }
         NavigationStack{
-            VStack{
                 List{
-                    ForEach(numbers, id: \.self){
-                        Text("Row \($0)")
+                    ForEach(expenses.items, id: \.name){ item in
+                        Text(item.name)
                     }
                     .onDelete(perform: removeRows)
                 }
                 
-                Button("Add Number"){
-                    numbers.append(currentNumber)
-                    currentNumber += 1
+                .navigationTitle("iExpense")
+                .toolbar{
+                    Button("Add Expense", systemImage: "plus"){
+                        let expense = ExpenseItem(name: "Test", type: "Personal", amount: 5)
+                        
+                        expenses.items.append(expense)
+                    }
                 }
-            }
-            .toolbar{
-                EditButton()
-            }
         }
 
     }
     
     func removeRows(at offSets: IndexSet){
-        numbers.remove(atOffsets : offSets)
+        expenses.items.remove(atOffsets : offSets)
     }
 
 }
-
-
-struct ContentView: View {
-    @State private var showingSheet = false
-    var body: some View {
-        VStack {
-            Button("Show Sheet"){
-                showingSheet.toggle()
-            }
-        }
-        .sheet(isPresented: $showingSheet){
-            SecondView(name: "Frank")
-        }
-    }
-}
-
-
 
 #Preview {
     ContentView()
